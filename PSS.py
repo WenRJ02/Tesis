@@ -1,11 +1,11 @@
 import math
 import random
 import pandas as pd
-import time
-import statistics
+#import time
+#import statistics
 from ACFL import GLCV
 from particle import Particle
-from Dinamic import Dinamic
+#from Dinamic import Dinamic
 
 
 class PSO:
@@ -37,7 +37,7 @@ class PSO:
         
         self.read_data()
         
-        start = time.time()
+        #start = time.time()
         
         if fuzzy == 1:
             GCLV_Return =  GLCV(Fuzzy_parameters[0], Fuzzy_parameters[1], Fuzzy_parameters[2])
@@ -50,7 +50,7 @@ class PSO:
         c1 = self.acc_local #Componente de aceleracion local
         c2 = self.acc_global #Componente de aceleracion global
         velocidad = self.velocity # cantidad de movimientos
-        flag_select = 0
+        #flag_select = 0
         
         for generation in range(self.max_gen):
             
@@ -58,7 +58,7 @@ class PSO:
                 
             for particle in self.swarm:
                 
-                # Determinar si se ahra moviento basado en mejor solucion local o global
+                # Determinar si se hara moviento basado en mejor solucion local o global
                 mov_local = random.randint(1,10) * c1
                 mov_global = random.randint(1,10) * c2
                 
@@ -75,7 +75,7 @@ class PSO:
                     particle.fitness = self.get_fitness(particle)
                 else:
                     #Fuzzy
-                    particle.fitness = self.get_fitness_ACFL(particle, Fuzzy_parametros, GCLV_Return, GCLV_Risk)
+                    particle.fitness = self.get_fitness_ACFL(particle, Fuzzy_parameters, GCLV_Return, GCLV_Risk)
                 
                 if particle.fitness > particle.Best_Personal_fitness:
                     particle.Best_Personal_fitness = particle.fitness
@@ -94,9 +94,9 @@ class PSO:
                     self.worst_risk = particle.riesgo 
                     
                # print(str(self.best_return) +" "+ str(self.best_risk))
-        end = time.time()
+        #end = time.time()
         
-        run_time = end-start
+        #run_time = end-start
         
         #print(str(self.best_return) +" "+ str(self.best_risk) + " "+str(self.worst_return) +" "+ str(self.worst_risk))
         #print(str(self.Best_Swarm_fitness) + " " +str(self.best_return) +" "+ str(self.best_risk))
@@ -220,7 +220,7 @@ class PSO:
         particle.retorno = asset_return
         particle.riesgo = asset_risk
         
-        fitness = asset_return - asset_risk
+        #fitness = asset_return - asset_risk
         
         GCLV_Return =  GLCV(parametros[0], parametros[1], parametros[2])
         GCLV_Risk =  GLCV(parametros[3], parametros[4], parametros[5])
@@ -233,7 +233,7 @@ class PSO:
     
     def print_sol(self, sol, fuzzy, parametros):    
         
-        count = 0
+        #count = 0
         
         particle = Particle()
         particle.Position = sol.copy()
