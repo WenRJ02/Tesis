@@ -7,13 +7,11 @@ num_aleatorio = None  #si quiero reproducir las mismas opciones iniciales usar 4
 fases = 6
 activos = 14
 
-
 def main():
     if num_aleatorio is not None:
         random.seed(num_aleatorio)
 
     modulo_pref = preferencia(target_satisfaction=0.85, max_display=15)
-
     fase = 1
 
     print("\n" + "=" * 60)
@@ -42,16 +40,14 @@ def main():
             fase=fase,
             puede_continuar=(fase < fases))
 
-        print(
-            f" Fitness CFL de la solución elegida: "
+        print(f" Fitness CFL de la solución elegida: "
             f"{sol.fitness * 100:.2f}%")
 
     # ----------------------------------- resultados de satisfacción
     historial = modulo_pref.historial
 
     satisfaccion_promedio = (
-        sum(
-            registro["satisfaccion_usuario"]
+        sum(registro["satisfaccion_usuario"]
             for registro in historial
         ) / len(historial)
         if historial else 0

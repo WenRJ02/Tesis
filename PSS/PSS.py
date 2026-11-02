@@ -65,7 +65,9 @@ class PSO:
 
     def get_risk(self, particle):
         w = self._pesos(particle.Position)
-        return float(w @ self.asset_cov @ w)   # incluye la diagonal (varianzas)
+        # Usamos la raíz cuadrada (desviación estándar) para acotar la escala del riesgo
+        varianza = float(w @ self.asset_cov @ w)
+        return math.sqrt(max(0.0, varianza))    # incluye la diagonal (varianzas)
 
     # ---------------------------------------------------------------- fitness
     def evaluar(self, particle, fuzzy):

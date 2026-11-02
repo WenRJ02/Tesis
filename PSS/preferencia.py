@@ -4,8 +4,6 @@ class preferencia:
     """Construcción progresiva e interactiva de las preferencias del inversionista
     mediante lógica difusa compensatoria (CFL)."""
 
-    K_ALFA = 2 * math.log(9)
-
     def __init__(self, target_satisfaction=0.85, max_display=15, factor_enfoque=0.7):
         self.iteracion = 1
         self.historial = []
@@ -151,44 +149,55 @@ class preferencia:
                 else None)
         })
 
-    # ----------------------------------- construcción de preferencias
+    
+# ----------------------------------- construcción de preferencias
     def actualizar_preferencias(self, sol, frente, satisfaccion):
         """Actualiza los parámetros de preferencia a partir de la elección."""
-        #sat = 0.5
-        #sat = 0.9999 
+
         if self.rango_ref is None:
-            r_ret = max(s.retorno for s in frente) - min(s.retorno for s in frente)
-            r_rsk = max(s.riesgo for s in frente) - min(s.riesgo for s in frente)
+            min_ret = min(s.retorno for s in frente)
+            max_ret = max(s.retorno for s in frente)
+            min_rsk = min(s.riesgo for s in frente)
+            max_rsk = max(s.riesgo for s in frente)
+
+            r_ret = max_ret - min_ret
+            r_rsk = max_rsk - min_rsk
 
             self.rango_ref = (max(r_ret, 1e-12), max(r_rsk, 1e-12))
+            # Guardamos los extremos iniciales fijos como referencia para alfa (según el paper PSS)
+            self.ref_extremos = (min_ret, max_ret, min_rsk, max_rsk)
 
         escala = self.factor_enfoque ** (self.iteracion - 1)
-        """
-            gama es que punto de x satisfaccion = 0.5
-            alfga el punto de x donde satisfaccion = 0.9999
-            
-        """
+
         r_ret = self.rango_ref[0] * escala
         r_rsk = self.rango_ref[1] * escala
 
         desplaz = 0.25 * (1 - satisfaccion) 
 
+        # Gama se obtiene a partir de la solución elegida y el desplazamiento
         gama_ret = sol.retorno + desplaz * r_ret
         gama_rsk = max(sol.riesgo - desplaz * r_rsk, 0.0)
 
-        """
-            
-            if sat == 0.5:
-                gama = sol.retorno
-            elif sat == 1:
-                alfa = (math.log(1/0.999) - 1 ) / (sol.retorno - self.current_param[1])
-        """
-        
+        # Referencias fijas x obtenidas de los extremos iniciales del enjambre (Fase 1)
+        min_ret, max_ret, min_rsk, max_rsk = self.ref_extremos
+        x_ret = max_ret  # Referencia de alto retorno
+        x_rsk = min_rsk  # Referencia de bajo riesgo (minimización)
+
+        # Validaciones de seguridad numérica
+        if x_ret <= gama_ret:
+            x_ret = gama_ret + 1e-6
+        if x_rsk >= gama_rsk:
+            x_rsk = max(0.0, gama_rsk - 1e-6)
+
+        # Aplicación estricta de la Fórmula 9 del paper PSS para alfa
+        alfa_ret = (math.log(1 / 0.999) - 1) / (x_ret - gama_ret)
+        alfa_rsk = (math.log(1 / 0.999) - 1) / (x_rsk - gama_rsk)
+
         self.current_fuzzy_params = [
-            self.K_ALFA / r_ret,
+            alfa_ret,
             gama_ret,
             1,
-            self.K_ALFA / r_rsk,
+            alfa_rsk,
             gama_rsk,
             0
         ]
@@ -199,6 +208,7 @@ class preferencia:
         print(f" Preferencias actualizadas: "
             f"gama_ret={p[1]:.6f} alfa_ret={p[0]:.2f} | "
             f"gama_riesgo={p[4]:.6f} alfa_riesgo={p[3]:.2f}")
+
 
     # ----------------------------------- criterio de parada
     def evaluar_parada(self, satisfaccion, fase, puede_continuar=True):

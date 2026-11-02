@@ -12,7 +12,7 @@ class GLCV:
 
     # Sigmoide estable numéricamente
     def S(self, x):
-        z = -self.alfa * (x - self.gama)
+        z = self.alfa * (x - self.gama)
         if z > 220:
             return 0.0
         if z < -220:
@@ -26,10 +26,10 @@ class GLCV:
     def GLCV_run(self, x):
         # Grado de cumplimiento para maximización (rendimiento) o minimización (riesgo)
         a = self.S(x)
-        b = 1.0 - a
         
         # Aplicación del parámetro m (eme = 1 para rendimiento, eme = 0 para riesgo)
+        # GLCV para maximización o minimización
         a_val = pow(a, self.eme)
-        b_val = pow(b, 1 - self.eme)
-        
-        return min(self.C(a_val, b_val), 1.0)
+        b_val = pow(1 - a, 1 - self.eme)
+
+        return a_val * b_val
